@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230b0f1a'/%3E%3Cpath d='M28 70 L50 28 L72 70' stroke='%236d5bff' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='50' cy='28' r='6' fill='%2338f0d8'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230b0f1a'/%3E%3Cg transform='translate(19.4,15.6) scale(0.85)'%3E%3Cpath d='M8,79 L8,16' stroke='%236d5bff' stroke-width='15' fill='none' stroke-linecap='round'/%3E%3Cpath d='M64,79 L64,33' stroke='%236d5bff' stroke-width='15' fill='none' stroke-linecap='round'/%3E%3Cpath d='M8,75 L70,4' stroke='%2338f0d8' stroke-width='15' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='70' cy='4' r='9' fill='%2338f0d8'/%3E%3C/g%3E%3C/svg%3E">
 
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -22,10 +22,16 @@
 <header class="site-header" id="top">
   <nav class="nav container">
     <a href="#top" class="brand" aria-label="Nadir — home">
-      <span class="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 100 100"><path d="M20 76 L50 24 L80 76" stroke="url(#gradMark)" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="50" cy="24" r="6" fill="#38f0d8"/><defs><linearGradient id="gradMark" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#6d5bff"/><stop offset="1" stop-color="#38f0d8"/></linearGradient></defs></svg>
+      <span class="brand-word">
+        <svg class="n-glyph" viewBox="0 0 72 81" aria-hidden="true">
+          <defs><linearGradient id="gradNavN" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#6d5bff"/><stop offset="1" stop-color="#38f0d8"/></linearGradient></defs>
+          <path d="M8,79 L8,16" fill="none" stroke="#eef0f6" stroke-width="12" stroke-linecap="round"/>
+          <path d="M64,79 L64,33" fill="none" stroke="#eef0f6" stroke-width="12" stroke-linecap="round"/>
+          <path d="M8,75 L70,4" fill="none" stroke="url(#gradNavN)" stroke-width="12" stroke-linecap="round"/>
+          <circle cx="70" cy="4" r="7.5" fill="#38f0d8" opacity="0.3"/>
+          <circle cx="70" cy="4" r="5" fill="#38f0d8"/>
+        </svg>ADIR<span class="brand-dot">.</span>
       </span>
-      <span class="brand-word">NADIR<span class="brand-dot">.</span></span>
     </a>
 
     <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
@@ -524,7 +530,16 @@
 <footer class="site-footer">
   <div class="container footer-grid">
     <div class="footer-brand">
-      <span class="brand-word">NADIR<span class="brand-dot">.</span></span>
+      <span class="brand-word">
+        <svg class="n-glyph" viewBox="0 0 72 81" aria-hidden="true">
+          <defs><linearGradient id="gradFooterN" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#6d5bff"/><stop offset="1" stop-color="#38f0d8"/></linearGradient></defs>
+          <path d="M8,79 L8,16" fill="none" stroke="#eef0f6" stroke-width="12" stroke-linecap="round"/>
+          <path d="M64,79 L64,33" fill="none" stroke="#eef0f6" stroke-width="12" stroke-linecap="round"/>
+          <path d="M8,75 L70,4" fill="none" stroke="url(#gradFooterN)" stroke-width="12" stroke-linecap="round"/>
+          <circle cx="70" cy="4" r="7.5" fill="#38f0d8" opacity="0.3"/>
+          <circle cx="70" cy="4" r="5" fill="#38f0d8"/>
+        </svg>ADIR<span class="brand-dot">.</span>
+      </span>
       <p>Websites for the businesses that build your town. Founded to give small,
       local business a real voice online.</p>
     </div>
