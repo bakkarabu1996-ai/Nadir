@@ -108,7 +108,7 @@ p{ margin:0 0 1em; color:var(--text-dim); }
   display:inline-flex; align-items:flex-end; line-height:1;
   font-family:var(--font-head); font-weight:700; font-size:1.25rem; letter-spacing:.06em;
 }
-.n-glyph{ display:block; width:1.16em; height:1.177em; margin-right:0.03em; flex:none; }
+.n-glyph{ display:block; width:1.16em; height:1.177em; margin-right:0.1em; flex:none; }
 .brand-dot{ color:var(--cyan); }
 
 .nav-links{ display:flex; align-items:center; gap:32px; }
