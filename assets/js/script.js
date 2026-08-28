@@ -73,10 +73,51 @@
     });
   });
 
-  // Contact form -> opens a pre-filled email to the studio inbox.
-  // Swap CONTACT_EMAIL for your real inbox, or replace this handler with a
-  // form backend (e.g. Formspree, Netlify Forms) once one is set up.
+  // ---------------------------------------------------------------
+  // Form submission
+  //
+  // Two modes, controlled by FORM_ENDPOINT below:
+  //  - Empty (default): forms fall back to a pre-filled mailto: link,
+  //    zero backend required.
+  //  - Set to a Formspree endpoint (sign up free at formspree.io,
+  //    create a form, paste its URL here, e.g.
+  //    'https://formspree.io/f/abcd1234'): forms submit silently
+  //    in-page instead, with the mailto link as a fallback if the
+  //    request fails.
+  // ---------------------------------------------------------------
   const CONTACT_EMAIL = 'hello@nadirstudio.io';
+  const FORM_ENDPOINT = '';
+
+  const buildMailto = (subject, bodyLines) =>
+    `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
+
+  async function submitForm({ form, statusEl, subject, bodyLines, sentMessage }) {
+    if (FORM_ENDPOINT) {
+      statusEl.textContent = 'Sending…';
+      try {
+        const res = await fetch(FORM_ENDPOINT, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: new FormData(form)
+        });
+        if (res.ok) {
+          statusEl.textContent = sentMessage;
+          form.reset();
+          return;
+        }
+      } catch (err) {
+        // network error — fall through to mailto fallback below
+      }
+    }
+
+    window.location.href = buildMailto(subject, bodyLines);
+    statusEl.textContent = 'Opening your email client to send the request…';
+    setTimeout(() => {
+      statusEl.textContent = `If nothing opened, email us directly at ${CONTACT_EMAIL}.`;
+    }, 2500);
+  }
+
+  // Contact form
   const form = document.getElementById('quoteForm');
   const status = document.getElementById('formStatus');
 
@@ -104,19 +145,18 @@
         'Message:',
         message
       ];
-      const mailto = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
 
-      window.location.href = mailto;
-
-      status.textContent = 'Opening your email client to send the request…';
-      setTimeout(() => {
-        status.textContent = `If nothing opened, email us directly at ${CONTACT_EMAIL}.`;
-      }, 2500);
+      submitForm({
+        form,
+        statusEl: status,
+        subject,
+        bodyLines,
+        sentMessage: 'Thanks — your request is in! We\'ll reply within one business day.'
+      });
     });
   }
 
-  // Project questionnaire -> opens a pre-filled email, same zero-backend
-  // approach as the contact form above.
+  // Project questionnaire
   const qForm = document.getElementById('questionnaireForm');
   const qStatus = document.getElementById('qFormStatus');
 
@@ -128,6 +168,7 @@
       const getAll = (key) => data.getAll(key).join(', ') || 'None selected';
 
       const business = get('business');
+      const subject = `Project questionnaire: ${business}`;
       const bodyLines = [
         `Business name: ${business}`,
         `Industry: ${get('industry')}`,
@@ -151,15 +192,14 @@
         'Additional notes:',
         get('notes') || 'n/a'
       ];
-      const subject = `Project questionnaire: ${business}`;
-      const mailto = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
 
-      window.location.href = mailto;
-
-      qStatus.textContent = 'Opening your email client to send your answers…';
-      setTimeout(() => {
-        qStatus.textContent = `If nothing opened, email us directly at ${CONTACT_EMAIL}.`;
-      }, 2500);
+      submitForm({
+        form: qForm,
+        statusEl: qStatus,
+        subject,
+        bodyLines,
+        sentMessage: 'Thanks — your answers are in! We\'ll follow up within one business day.'
+      });
     });
   }
 })();
