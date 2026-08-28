@@ -1,9 +1,22 @@
 (() => {
   'use strict';
 
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+
   // Footer year
   const yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+  // Nav shrinks/solidifies after scrolling past the hero
+  const siteHeader = document.querySelector('.site-header');
+  if (siteHeader) {
+    const updateHeaderState = () => {
+      siteHeader.classList.toggle('scrolled', window.scrollY > 40);
+    };
+    updateHeaderState();
+    window.addEventListener('scroll', updateHeaderState, { passive: true });
+  }
 
   // Mobile nav toggle
   const navToggle = document.getElementById('navToggle');
@@ -37,6 +50,84 @@
     revealEls.forEach(el => io.observe(el));
   } else {
     revealEls.forEach(el => el.classList.add('in-view'));
+  }
+
+  // Hero stat count-up, once each is in view
+  const countEls = document.querySelectorAll('.count[data-target]');
+  const animateCount = (el) => {
+    const target = parseInt(el.getAttribute('data-target'), 10) || 0;
+    if (prefersReducedMotion) {
+      el.textContent = target;
+      return;
+    }
+    const duration = 1200;
+    const start = performance.now();
+    const step = (now) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      el.textContent = Math.round(target * eased);
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+  if (countEls.length && 'IntersectionObserver' in window) {
+    const countIo = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCount(entry.target);
+          countIo.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.6 });
+    countEls.forEach(el => countIo.observe(el));
+  } else {
+    countEls.forEach(el => { el.textContent = el.getAttribute('data-target'); });
+  }
+
+  // Magnetic buttons — nudge toward the cursor, desktop only
+  if (hasFinePointer && !prefersReducedMotion) {
+    document.querySelectorAll('.magnetic').forEach(btn => {
+      let rect = null;
+      btn.addEventListener('mouseenter', () => { rect = btn.getBoundingClientRect(); });
+      btn.addEventListener('mousemove', (e) => {
+        if (!rect) rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        btn.style.transform = `translate(${x * 0.18}px, ${y * 0.3}px)`;
+      });
+      btn.addEventListener('mouseleave', () => {
+        btn.style.transform = '';
+        rect = null;
+      });
+    });
+  }
+
+  // Cursor-reactive glow in the hero, desktop only
+  const hero = document.querySelector('.hero');
+  const cursorGlow = document.getElementById('cursorGlow');
+  if (hero && cursorGlow && hasFinePointer && !prefersReducedMotion) {
+    let targetX = 0, targetY = 0, currentX = 0, currentY = 0, raf = null;
+
+    const loop = () => {
+      currentX += (targetX - currentX) * 0.12;
+      currentY += (targetY - currentY) * 0.12;
+      cursorGlow.style.transform = `translate(${currentX}px, ${currentY}px) translate(-50%, -50%)`;
+      raf = requestAnimationFrame(loop);
+    };
+
+    hero.addEventListener('mouseenter', () => {
+      cursorGlow.classList.add('active');
+      if (!raf) raf = requestAnimationFrame(loop);
+    });
+    hero.addEventListener('mousemove', (e) => {
+      const rect = hero.getBoundingClientRect();
+      targetX = e.clientX - rect.left;
+      targetY = e.clientY - rect.top;
+    });
+    hero.addEventListener('mouseleave', () => {
+      cursorGlow.classList.remove('active');
+      if (raf) { cancelAnimationFrame(raf); raf = null; }
+    });
   }
 
   // Active nav link on scroll
