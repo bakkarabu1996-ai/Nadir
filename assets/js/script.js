@@ -189,28 +189,45 @@
   // Form submission
   //
   // Two modes, controlled by FORM_ENDPOINT below:
-  //  - Empty (default): forms fall back to a pre-filled mailto: link,
-  //    zero backend required.
-  //  - Set to a Formspree endpoint (sign up free at formspree.io,
-  //    create a form, paste its URL here, e.g.
-  //    'https://formspree.io/f/abcd1234'): forms submit silently
-  //    in-page instead, with the mailto link as a fallback if the
-  //    request fails.
+  //  - Set to a form endpoint: forms submit silently in-page, with the
+  //    mailto link kept as a fallback if the request fails.
+  //  - Empty: forms fall back to a pre-filled mailto: link, zero
+  //    backend required.
+  //
+  // Each form passes `fields` — an array of [label, value] pairs, in
+  // the order they should appear. A null entry means a blank line in
+  // the email body. The same array builds both the posted payload and
+  // the mailto fallback, so the two stay in sync.
   // ---------------------------------------------------------------
   const CONTACT_EMAIL = 'hello@nadirstudio.io';
-  const FORM_ENDPOINT = '';
+  const FORM_ENDPOINT = 'https://formspree.io/f/xeaqqwoa';
 
-  const buildMailto = (subject, bodyLines) =>
-    `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
+  const buildBody = (fields) =>
+    fields
+      .map((field) => {
+        if (!field) return '';
+        const [label, value] = field;
+        return value.includes('\n') ? `${label}:\n${value}` : `${label}: ${value}`;
+      })
+      .join('\n');
 
-  async function submitForm({ form, statusEl, subject, bodyLines, sentMessage }) {
+  const buildMailto = (subject, fields) =>
+    `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(buildBody(fields))}`;
+
+  async function submitForm({ form, statusEl, subject, fields, replyTo, sentMessage }) {
     if (FORM_ENDPOINT) {
+      const payload = { _subject: subject };
+      if (replyTo) payload._replyto = replyTo;
+      fields.forEach((field) => {
+        if (field) payload[field[0]] = field[1];
+      });
+
       statusEl.textContent = 'Sending…';
       try {
         const res = await fetch(FORM_ENDPOINT, {
           method: 'POST',
-          headers: { Accept: 'application/json' },
-          body: new FormData(form)
+          headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
         });
         if (res.ok) {
           statusEl.textContent = sentMessage;
@@ -222,7 +239,7 @@
       }
     }
 
-    window.location.href = buildMailto(subject, bodyLines);
+    window.location.href = buildMailto(subject, fields);
     statusEl.textContent = 'Opening your email client to send the request…';
     setTimeout(() => {
       statusEl.textContent = `If nothing opened, email us directly at ${CONTACT_EMAIL}.`;
@@ -246,23 +263,23 @@
       const message = (data.get('message') || '').toString().trim();
 
       const subject = `Quote request: ${business}`;
-      const bodyLines = [
-        `Business name: ${business}`,
-        `Contact name: ${name}`,
-        `Email: ${email}`,
-        `Phone: ${phone || 'n/a'}`,
-        `Looking for: ${need}`,
-        `Existing site/domain: ${existing}`,
-        '',
-        'Message:',
-        message
+      const fields = [
+        ['Business name', business],
+        ['Contact name', name],
+        ['Email', email],
+        ['Phone', phone || 'n/a'],
+        ['Looking for', need],
+        ['Existing site/domain', existing],
+        null,
+        ['Message', message]
       ];
 
       submitForm({
         form,
         statusEl: status,
         subject,
-        bodyLines,
+        fields,
+        replyTo: email,
         sentMessage: 'Thanks — your request is in! We\'ll reply within one business day.'
       });
     });
@@ -280,36 +297,37 @@
       const getAll = (key) => data.getAll(key).join(', ') || 'None selected';
 
       const business = get('business');
+      const email = get('email');
       const subject = `Project questionnaire: ${business}`;
-      const bodyLines = [
-        `Business name: ${business}`,
-        `Industry: ${get('industry')}`,
-        `Contact name: ${get('name')}`,
-        `Email: ${get('email')}`,
-        `Phone: ${get('phone') || 'n/a'}`,
-        `Current website: ${get('currentSite') || 'n/a'}`,
-        '',
-        `Main goals: ${getAll('goal')}`,
-        `Pages needed: ${getAll('pages')}`,
-        '',
-        `Design style: ${get('style') || 'Not specified'}`,
-        `Inspiration links: ${get('inspiration') || 'n/a'}`,
-        '',
-        `Assets ready: ${getAll('assets')}`,
-        `Features wanted: ${getAll('features')}`,
-        '',
-        `Timeline: ${get('timeline')}`,
-        `Budget range: ${get('budget')}`,
-        '',
-        'Additional notes:',
-        get('notes') || 'n/a'
+      const fields = [
+        ['Business name', business],
+        ['Industry', get('industry')],
+        ['Contact name', get('name')],
+        ['Email', email],
+        ['Phone', get('phone') || 'n/a'],
+        ['Current website', get('currentSite') || 'n/a'],
+        null,
+        ['Main goals', getAll('goal')],
+        ['Pages needed', getAll('pages')],
+        null,
+        ['Design style', get('style') || 'Not specified'],
+        ['Inspiration links', get('inspiration') || 'n/a'],
+        null,
+        ['Assets ready', getAll('assets')],
+        ['Features wanted', getAll('features')],
+        null,
+        ['Timeline', get('timeline')],
+        ['Budget range', get('budget')],
+        null,
+        ['Additional notes', get('notes') || 'n/a']
       ];
 
       submitForm({
         form: qForm,
         statusEl: qStatus,
         subject,
-        bodyLines,
+        fields,
+        replyTo: email,
         sentMessage: 'Thanks — your answers are in! We\'ll follow up within one business day.'
       });
     });

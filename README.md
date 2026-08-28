@@ -1,6 +1,6 @@
-# Nadir
+# Nadir Studios
 
-Marketing website for **Nadir** — a studio building fast, modern websites for
+Marketing website for **Nadir Studios** — a studio building fast, modern websites for
 small local businesses, plus ongoing local SEO / promotion ("Amplify") plans.
 
 > *Nadir: the lowest point on the celestial sphere, directly opposite the
