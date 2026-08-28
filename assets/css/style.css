@@ -479,7 +479,8 @@ textarea{ resize:vertical; }
 .footer-grid{ display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:40px; padding-bottom:48px; border-bottom:1px solid var(--border); }
 .footer-brand p{ font-size:.88rem; max-width:280px; margin-top:14px; }
 .footer-col{ display:flex; flex-direction:column; gap:12px; }
-.footer-col h4{ font-size:.82rem; text-transform:uppercase; letter-spacing:.08em; color:var(--text-faint); margin-bottom:6px; }
+/* h2 for correct heading order; styled small to sit as a column label */
+.footer-col h2{ font-size:.82rem; text-transform:uppercase; letter-spacing:.08em; color:var(--text-faint); margin-bottom:6px; }
 .footer-col a{ font-size:.9rem; color:var(--text-dim); transition:color .2s; }
 .footer-col a:hover{ color:var(--cyan); }
 .footer-bottom{

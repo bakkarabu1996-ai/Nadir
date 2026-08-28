@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://nadir-gold.vercel.app/sitemap.xml
+Sitemap: https://bakkarabu1996-ai.github.io/Nadir/sitemap.xml
