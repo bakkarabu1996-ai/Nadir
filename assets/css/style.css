@@ -135,6 +135,8 @@ p{ margin:0 0 1em; color:var(--text-dim); }
 .nav-cta{
   color:#04050a !important; background:var(--grad); padding:10px 18px; border-radius:999px; font-weight:700;
   position:relative; overflow:hidden; isolation:isolate;
+  clip-path:inset(0 round 999px);
+  transform:translateZ(0);
 }
 .nav-cta::before{
   content:''; position:absolute; top:0; left:-130%; width:55%; height:100%;
