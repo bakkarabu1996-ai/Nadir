@@ -252,7 +252,9 @@ section{ padding:110px 0; position:relative; }
   display:block; font-family:var(--font-mono); font-size:.8rem; color:var(--violet-soft); margin-bottom:14px;
 }
 .process-step h3{ font-size:1.05rem; }
-.process-step p{ font-size:.9rem; margin:0; }
+.process-step p{ font-size:.9rem; margin:0 0 .6em; }
+.step-link{ font-size:.84rem; color:var(--cyan); font-weight:500; }
+.step-link:hover{ text-decoration:underline; }
 .process-step:not(:last-child)::after{
   content:''; position:absolute; top:50%; right:-24px; width:24px; height:1px;
   background:linear-gradient(90deg, var(--border-strong), transparent);
@@ -386,6 +388,8 @@ section{ padding:110px 0; position:relative; }
 ========================================================= */
 .contact-grid{ display:grid; grid-template-columns:.9fr 1.1fr; gap:64px; }
 .contact-copy h2{ font-size:clamp(1.7rem,3vw,2.4rem); max-width:520px; }
+.inline-link{ color:var(--cyan); font-weight:500; }
+.inline-link:hover{ text-decoration:underline; }
 .contact-info{ display:flex; flex-direction:column; gap:14px; margin:28px 0 24px; }
 .contact-line{ display:flex; align-items:center; gap:12px; font-size:.95rem; color:var(--text); transition:color .2s; }
 a.contact-line:hover{ color:var(--cyan); }

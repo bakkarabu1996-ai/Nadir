@@ -114,4 +114,52 @@
       }, 2500);
     });
   }
+
+  // Project questionnaire -> opens a pre-filled email, same zero-backend
+  // approach as the contact form above.
+  const qForm = document.getElementById('questionnaireForm');
+  const qStatus = document.getElementById('qFormStatus');
+
+  if (qForm) {
+    qForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const data = new FormData(qForm);
+      const get = (key) => (data.get(key) || '').toString().trim();
+      const getAll = (key) => data.getAll(key).join(', ') || 'None selected';
+
+      const business = get('business');
+      const bodyLines = [
+        `Business name: ${business}`,
+        `Industry: ${get('industry')}`,
+        `Contact name: ${get('name')}`,
+        `Email: ${get('email')}`,
+        `Phone: ${get('phone') || 'n/a'}`,
+        `Current website: ${get('currentSite') || 'n/a'}`,
+        '',
+        `Main goals: ${getAll('goal')}`,
+        `Pages needed: ${getAll('pages')}`,
+        '',
+        `Design style: ${get('style') || 'Not specified'}`,
+        `Inspiration links: ${get('inspiration') || 'n/a'}`,
+        '',
+        `Assets ready: ${getAll('assets')}`,
+        `Features wanted: ${getAll('features')}`,
+        '',
+        `Timeline: ${get('timeline')}`,
+        `Budget range: ${get('budget')}`,
+        '',
+        'Additional notes:',
+        get('notes') || 'n/a'
+      ];
+      const subject = `Project questionnaire: ${business}`;
+      const mailto = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
+
+      window.location.href = mailto;
+
+      qStatus.textContent = 'Opening your email client to send your answers…';
+      setTimeout(() => {
+        qStatus.textContent = `If nothing opened, email us directly at ${CONTACT_EMAIL}.`;
+      }, 2500);
+    });
+  }
 })();

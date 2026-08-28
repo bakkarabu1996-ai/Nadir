@@ -1,0 +1,44 @@
+/* =========================================================
+   QUESTIONNAIRE — extends style.css tokens
+========================================================= */
+
+.q-intro{ padding:150px 0 40px; text-align:center; }
+.q-intro-inner{ max-width:700px; margin:0 auto; }
+.q-intro h1{ font-size:clamp(2rem, 4.5vw, 3rem); letter-spacing:-.02em; margin:18px 0; }
+.q-intro-sub{ font-size:1.05rem; }
+
+.q-form-section{ padding:40px 0 120px; }
+.q-form-wrap{ max-width:720px; }
+
+.q-form{ display:flex; flex-direction:column; gap:20px; }
+
+.q-field{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:32px; margin:0; display:flex; flex-direction:column; gap:16px;
+}
+.q-field legend{
+  font-family:var(--font-head); font-size:1.15rem; font-weight:600; color:var(--text);
+  display:flex; align-items:center; gap:12px; padding:0; margin-bottom:4px;
+}
+.q-num{
+  font-family:var(--font-mono); font-size:.78rem; font-weight:500; color:var(--violet-soft);
+  border:1px solid var(--border-strong); border-radius:999px; padding:4px 10px;
+}
+.q-hint{ font-size:.86rem; color:var(--text-faint); margin:-8px 0 0; }
+
+.q-checks, .q-radios{
+  display:grid; grid-template-columns:1fr 1fr; gap:10px 16px;
+}
+.q-check, .q-radio{
+  display:flex; align-items:flex-start; gap:10px; font-size:.92rem; color:var(--text-dim);
+  cursor:pointer;
+}
+.q-check input, .q-radio input{
+  width:17px; height:17px; margin-top:2px; flex:none; accent-color:var(--violet);
+}
+
+@media(max-width:640px){
+  .q-checks, .q-radios{ grid-template-columns:1fr; }
+  .q-field{ padding:24px 20px; }
+  .q-intro{ padding:120px 0 32px; }
+}
