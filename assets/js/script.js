@@ -4,6 +4,10 @@
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
 
+  // Set by the nav-highlight block below, used by the scroll-spy block further down
+  let activeNavLink = null;
+  let moveNavHighlight = null;
+
   // Footer year
   const yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
@@ -34,6 +38,21 @@
         navToggle.setAttribute('aria-expanded', 'false');
       });
     });
+  }
+
+  // Sliding nav highlight — desktop only, follows hover then rests on the active section
+  const navHighlight = document.getElementById('navHighlight');
+  if (navLinks && navHighlight) {
+    moveNavHighlight = (link) => {
+      if (!link) { navHighlight.style.opacity = '0'; return; }
+      navHighlight.style.left = `${link.offsetLeft}px`;
+      navHighlight.style.width = `${link.offsetWidth}px`;
+      navHighlight.style.opacity = '1';
+    };
+    navLinks.querySelectorAll('.nav-link:not(.nav-cta)').forEach(link => {
+      link.addEventListener('mouseenter', () => moveNavHighlight(link));
+    });
+    navLinks.addEventListener('mouseleave', () => moveNavHighlight(activeNavLink));
   }
 
   // Scroll reveal
@@ -142,6 +161,8 @@
         if (entry.isIntersecting) {
           navAnchors.forEach(a => a.classList.remove('active'));
           link.classList.add('active');
+          activeNavLink = link;
+          if (moveNavHighlight) moveNavHighlight(link);
         }
       });
     }, { rootMargin: '-45% 0px -50% 0px' });
