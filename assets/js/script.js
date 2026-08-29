@@ -12,6 +12,16 @@
   const yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+  // Logo link: #top targets the sticky header, which never moves, so the
+  // browser's default anchor scroll is a no-op. Scroll the page instead.
+  const brandHome = document.querySelector('a.brand[href="#top"]');
+  if (brandHome) {
+    brandHome.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+    });
+  }
+
   // Mobile nav is an overlay panel below this width; above it the links sit
   // inline in the header and none of the open/lock handling applies.
   const mobileNav = window.matchMedia('(max-width: 760px)');
