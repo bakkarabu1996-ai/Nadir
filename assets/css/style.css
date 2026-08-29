@@ -79,6 +79,7 @@ p{ margin:0 0 1em; color:var(--text-dim); }
 .btn:hover .arrow{ transform:translateX(4px); }
 .btn-primary{
   background:var(--grad);
+  background-clip:padding-box;
   color:#04050a;
   box-shadow:0 0 0 rgba(109,91,255,0), 0 8px 30px -8px rgba(109,91,255,.55);
 }
