@@ -40,6 +40,14 @@ Tracked placeholders and open decisions. Update this file as items get resolved.
       policy updated to disclose it; no cookie banner needed since Plausible
       doesn't use cookies or collect personal data.
 
+## Internal tooling
+- [ ] **Lead finder (V1 built)** — `tools/lead-finder/` runs the Optimait-style
+      lead discovery workflow (Google Places -> website check -> opportunity
+      score -> CSV/JSON). Needs a `GOOGLE_PLACES_API_KEY` to run. See
+      `tools/lead-finder/README.md` and `tools/lead-finder/Lead_Finder_System_Plan.docx`
+      for the full V1–V7 roadmap (AI website audit, Supabase dashboard/CRM,
+      AI sales prep, website preview generator, compliant outreach).
+
 ## Nice to have, not blocking
 - [ ] Custom logo/wordmark beyond the current text-based mark
 - [ ] Real photos / founding-client testimonials once first customers exist
