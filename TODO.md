@@ -3,10 +3,13 @@
 Tracked placeholders and open decisions. Update this file as items get resolved.
 
 ## Blocking — placeholder contact details still in the code
-- [ ] **Real business email** — `hello@nadirstudio.io` is a placeholder and does
-      not exist. Appears in `index.html`, `privacy.html`, `terms.html`,
-      `questionnaire.html`, and `CONTACT_EMAIL` in `assets/js/script.js`.
-      Also update the Formspree form's notification address to match.
+- [x] **Real business email** — swapped the placeholder `hello@nadirstudio.io`
+      for the real `hello@nadirstudios.co.uk` across `index.html`,
+      `privacy.html`, `terms.html`, `questionnaire.html`, and `CONTACT_EMAIL`
+      in `assets/js/script.js`. Routes via Cloudflare Email Routing to a
+      dedicated Gmail account, with Gmail "Send As" configured so replies go
+      out under the business address. Still needed: update the Formspree
+      form's notification address to match.
 - [ ] **Real phone number** — `+44 7000 123456` is a placeholder (an unassigned
       Ofcom drama number). Appears in `index.html` contact section, all four
       page footers, `tel:` links, and the form placeholder.

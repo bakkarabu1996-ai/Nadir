@@ -263,7 +263,7 @@
   // the email body. The same array builds both the posted payload and
   // the mailto fallback, so the two stay in sync.
   // ---------------------------------------------------------------
-  const CONTACT_EMAIL = 'hello@nadirstudio.io';
+  const CONTACT_EMAIL = 'hello@nadirstudios.co.uk';
   const FORM_ENDPOINT = 'https://formspree.io/f/xeaqqwoa';
 
   const buildBody = (fields) =>
