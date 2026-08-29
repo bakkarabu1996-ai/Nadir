@@ -127,7 +127,7 @@ body.nav-open .site-header::before{ background:var(--bg); }
   display:inline-flex; align-items:flex-end; line-height:1;
   font-family:var(--font-head); font-weight:700; font-size:1.25rem; letter-spacing:.06em;
 }
-.n-glyph{ display:block; width:1.16em; height:1.177em; margin-right:0.3em; flex:none; transition:transform .35s var(--ease); }
+.n-glyph{ display:block; width:1.16em; height:1.177em; margin-right:0.16em; flex:none; transition:transform .35s var(--ease); }
 .brand:hover .n-glyph{ transform:scale(1.08) rotate(-3deg); }
 .brand-dot{ color:var(--cyan); }
 .brand-sub{
