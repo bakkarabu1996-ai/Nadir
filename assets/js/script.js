@@ -386,4 +386,24 @@
       });
     });
   }
+
+  // Back to top
+  const toTop = document.getElementById('toTop');
+  if (toTop) {
+    let toTopTicking = false;
+    const updateToTop = () => {
+      toTop.classList.toggle('is-visible', window.scrollY > 600);
+      toTopTicking = false;
+    };
+    updateToTop();
+    window.addEventListener('scroll', () => {
+      if (!toTopTicking) {
+        requestAnimationFrame(updateToTop);
+        toTopTicking = true;
+      }
+    }, { passive: true });
+    toTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+    });
+  }
 })();
