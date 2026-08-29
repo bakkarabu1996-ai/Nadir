@@ -12,10 +12,22 @@
   const yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-  // Nav shrinks/solidifies after scrolling past the hero
+  // Mobile nav is an overlay panel below this width; above it the links sit
+  // inline in the header and none of the open/lock handling applies.
+  const mobileNav = window.matchMedia('(max-width: 760px)');
+
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  let navOpen = false;
+
+  // Nav shrinks/solidifies after scrolling past the hero.
+  // Skipped while the panel is open: the scroll lock parks the page at
+  // scrollY 0, which would otherwise snap the header back to full height
+  // and pull the panel's top edge away from it mid-animation.
   const siteHeader = document.querySelector('.site-header');
   if (siteHeader) {
     const updateHeaderState = () => {
+      if (navOpen) return;
       siteHeader.classList.toggle('scrolled', window.scrollY > 40);
     };
     updateHeaderState();
@@ -23,27 +35,62 @@
   }
 
   // Mobile nav toggle
-  const navToggle = document.getElementById('navToggle');
-  const navLinks = document.getElementById('navLinks');
   if (navToggle && navLinks) {
-    navToggle.addEventListener('click', () => {
-      const open = navLinks.classList.toggle('open');
+    let savedScrollY = 0;
+
+    const setNav = (open) => {
+      if (open === navOpen) return;
+
+      // Lock the body before flagging open, unlock after clearing it, so the
+      // scroll handler sees the correct state on the events each one fires.
+      if (open && mobileNav.matches) {
+        savedScrollY = window.scrollY;
+        document.body.style.top = `-${savedScrollY}px`;
+        document.body.classList.add('nav-open');
+      }
+
+      navOpen = open;
+      navLinks.classList.toggle('open', open);
       navToggle.classList.toggle('open', open);
       navToggle.setAttribute('aria-expanded', String(open));
-    });
+
+      if (!open && document.body.classList.contains('nav-open')) {
+        document.body.classList.remove('nav-open');
+        document.body.style.top = '';
+        // Must be instant: html has scroll-behavior:smooth, which would
+        // otherwise animate the page back from 0 in full view of the user.
+        window.scrollTo({ top: savedScrollY, left: 0, behavior: 'instant' });
+      }
+    };
+
+    navToggle.addEventListener('click', () => setNav(!navOpen));
+
     navLinks.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        navLinks.classList.remove('open');
-        navToggle.classList.remove('open');
-        navToggle.setAttribute('aria-expanded', 'false');
-      });
+      link.addEventListener('click', () => setNav(false));
     });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && navOpen) {
+        setNav(false);
+        navToggle.focus();
+      }
+    });
+
+    // Rotating to landscape crosses the breakpoint and the panel reverts to an
+    // inline row — drop the open state and the scroll lock with it.
+    const handleBreakpoint = (e) => { if (!e.matches) setNav(false); };
+    if (mobileNav.addEventListener) mobileNav.addEventListener('change', handleBreakpoint);
+    else mobileNav.addListener(handleBreakpoint);
   }
 
   // Sliding nav highlight — desktop only, follows hover then rests on the active section
   const navHighlight = document.getElementById('navHighlight');
   if (navLinks && navHighlight) {
     moveNavHighlight = (link) => {
+      // The highlight is hidden in the stacked mobile panel; measuring there
+      // would cache column coordinates that are wrong once the links return
+      // to a row, so leave it alone until the layout is horizontal again.
+      if (mobileNav.matches) return;
       if (!link) { navHighlight.style.opacity = '0'; return; }
       navHighlight.style.left = `${link.offsetLeft}px`;
       navHighlight.style.width = `${link.offsetWidth}px`;
@@ -53,6 +100,13 @@
       link.addEventListener('mouseenter', () => moveNavHighlight(link));
     });
     navLinks.addEventListener('mouseleave', () => moveNavHighlight(activeNavLink));
+
+    // Re-measure after a resize or rotation, since link positions shift.
+    let highlightTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(highlightTimer);
+      highlightTimer = setTimeout(() => moveNavHighlight(activeNavLink), 150);
+    }, { passive: true });
   }
 
   // Scroll reveal
