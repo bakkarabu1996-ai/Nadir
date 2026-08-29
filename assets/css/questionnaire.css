@@ -29,6 +29,7 @@
 .q-checks, .q-radios{
   display:grid; grid-template-columns:1fr 1fr; gap:10px 16px;
 }
+.q-checks > *, .q-radios > *{ min-width:0; }
 .q-check, .q-radio{
   display:flex; align-items:flex-start; gap:10px; font-size:.92rem; color:var(--text-dim);
   cursor:pointer;
