@@ -32,9 +32,13 @@ Tracked placeholders and open decisions. Update this file as items get resolved.
 - [ ] **Payment collection** — no processor connected. Terms currently state
       bank transfer/invoice. Revisit if card payment is wanted (Stripe UK is
       1.5% + £0.20 per transaction, no monthly fee).
-- [ ] **Analytics** — none installed. Note that adding any tracking requires a
-      cookie banner and a privacy-policy update (the policy currently states
-      no cookies or analytics are used).
+- [x] **Analytics** — Plausible (cookieless, privacy-friendly) wired into all
+      four pages via `data-domain="nadirstudios.co.uk"`. **Placeholder domain
+      — update the `data-domain` attribute in `index.html`, `privacy.html`,
+      `terms.html`, and `questionnaire.html` once the real domain is
+      registered**, and create the site in your Plausible account. Privacy
+      policy updated to disclose it; no cookie banner needed since Plausible
+      doesn't use cookies or collect personal data.
 
 ## Nice to have, not blocking
 - [ ] Custom logo/wordmark beyond the current text-based mark
