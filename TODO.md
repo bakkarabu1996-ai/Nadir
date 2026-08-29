@@ -15,10 +15,11 @@ Tracked placeholders and open decisions. Update this file as items get resolved.
       valid UK privacy policy.
 
 ## Business basics
-- [ ] **Custom domain** — site currently lives at the GitHub Pages default URL.
-      Once a domain is bought: add a `CNAME` file, point DNS at GitHub Pages,
-      then update the canonical/OG URLs in all four pages plus `sitemap.xml`
-      and `robots.txt`.
+- [x] **Custom domain** — `nadirstudios.co.uk` registered via Cloudflare
+      Registrar. `CNAME` file added and canonical/OG URLs, `sitemap.xml`, and
+      `robots.txt` updated to the real domain. Remaining: point DNS at GitHub
+      Pages and set the custom domain in the repo's GitHub Pages settings
+      (see README for the exact records).
 - [ ] **ICO Data Protection Fee** (~£52/yr) — very likely required, since the
       site collects client personal data via the forms.
 - [ ] **VAT-registration status** — confirms or removes the VAT note under Pricing.

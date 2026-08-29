@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bakkarabu1996-ai.github.io/Nadir/sitemap.xml
+Sitemap: https://nadirstudios.co.uk/sitemap.xml
