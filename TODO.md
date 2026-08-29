@@ -51,3 +51,5 @@ Tracked placeholders and open decisions. Update this file as items get resolved.
 - [x] SEO — canonical tags, sitemap, robots.txt, JSON-LD structured data
 - [x] Social share image (`assets/img/og-image.png`) + OG/Twitter tags
 - [x] Branded 404 page
+- [x] Responsive + keyboard-accessibility pass — every page checked at
+      320/390/768/1280/1600px for overflow, clipped content and tab order

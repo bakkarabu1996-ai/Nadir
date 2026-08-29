@@ -105,7 +105,9 @@ p{ margin:0 0 1em; color:var(--text-dim); }
 /* The frosted backdrop lives on a pseudo-element, not on .site-header itself.
    backdrop-filter makes an element a containing block for position:fixed
    descendants — putting it on the header would trap the mobile nav panel
-   inside the 76px header box instead of letting it cover the viewport. */
+   inside the 76px header box instead of letting it cover the viewport.
+   --nav-h itself lives on :root and drives both the bar height and where the
+   mobile panel starts, so the two stay flush when the bar shrinks on scroll. */
 .site-header::before{
   content:''; position:absolute; inset:0; z-index:-1;
   background:rgba(5,7,13,.7);
@@ -479,11 +481,25 @@ a.contact-line:hover{ color:var(--cyan); }
 label{ display:flex; flex-direction:column; gap:8px; font-size:.85rem; color:var(--text-dim); }
 label.full{ width:100%; }
 .optional{ color:var(--text-faint); font-weight:400; }
+/* label is a column flex container, so a bare span would break onto its own line —
+   the field text and its "(optional)" note share one wrapper to stay on the same line */
+.field-label{ display:block; }
+/* Push the control to the bottom of the label box so a label that wraps to two lines
+   doesn't knock its field out of line with the one beside it */
+.form-row label > input,
+.form-row label > select,
+.form-row label > textarea{ margin-top:auto; }
 input, select, textarea{
   background:var(--bg-alt); border:1px solid var(--border-strong); border-radius:10px;
   padding:12px 14px; color:var(--text); font-family:var(--font-body); font-size:.92rem;
   transition:border-color .2s, box-shadow .2s;
+  /* A control carries an intrinsic minimum width — a <select> is as wide as its longest
+     option — which on a narrow phone pushes the whole grid wider than the screen.
+     An explicit width makes them follow the container instead. */
+  width:100%; min-width:0;
 }
+/* Grid items default to min-width:auto, which would pass that same floor up to the track */
+.contact-grid > *, .form-row > *{ min-width:0; }
 input:focus, select:focus, textarea:focus{
   outline:none; border-color:var(--violet-soft); box-shadow:0 0 0 3px rgba(109,91,255,.18);
 }
