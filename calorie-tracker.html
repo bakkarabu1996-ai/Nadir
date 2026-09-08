@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calorie Tracker</title>
+<meta name="description" content="A simple, private, in-browser calorie calculator and daily food log. No sign-up, no server — your data stays on your device.">
+<meta name="robots" content="noindex">
+<style>
+  :root{
+    --bg: #05070d;
+    --bg-alt: #0a0e18;
+    --surface: #0f1420;
+    --surface-2: #141a29;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.16);
+    --text: #eef0f6;
+    --text-dim: #9aa2b8;
+    --text-faint: #626a80;
+
+    --violet: #6d5bff;
+    --violet-soft: #8b7bff;
+    --cyan: #38f0d8;
+    --coral: #ff5b6a;
+    --amber: #ffb84d;
+
+    --grad: linear-gradient(120deg, var(--violet), var(--cyan));
+
+    --font-head: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+    --radius: 16px;
+    --radius-sm: 10px;
+    --container: 900px;
+    --ease: cubic-bezier(.16,.8,.3,1);
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  body::before{
+    content:'';
+    position:fixed; inset:0; z-index:-1;
+    background:
+      radial-gradient(circle at 15% -10%, rgba(109,91,255,.25), transparent 45%),
+      radial-gradient(circle at 90% 0%, rgba(56,240,216,.14), transparent 40%),
+      var(--bg);
+  }
+  h1,h2,h3{ font-family:var(--font-head); font-weight:600; line-height:1.2; margin:0 0 .4em; }
+  p{ margin:0 0 1em; color:var(--text-dim); }
+  .container{ max-width:var(--container); margin:0 auto; padding:32px 20px 80px; }
+
+  .grad-text{
+    background:var(--grad);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  header.page{ text-align:center; margin-bottom:32px; }
+  header.page .eyebrow{
+    display:inline-block; font-family:var(--font-mono); font-size:.75rem;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--cyan);
+    background:rgba(56,240,216,.08); border:1px solid rgba(56,240,216,.25);
+    padding:4px 12px; border-radius:999px; margin-bottom:14px;
+  }
+  header.page h1{ font-size:clamp(1.8rem, 5vw, 2.6rem); }
+  header.page p{ max-width:520px; margin:0 auto; }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:24px;
+    margin-bottom:22px;
+  }
+  .card h2{ font-size:1.15rem; display:flex; align-items:center; gap:10px; }
+  .card h2 .num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:26px; height:26px; border-radius:50%; font-size:.8rem;
+    background:var(--grad); color:#05070d; font-family:var(--font-mono); font-weight:700;
+    flex:none;
+  }
+
+  details.card{ padding:0; }
+  details.card > summary{
+    list-style:none; cursor:pointer; padding:22px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  details.card > summary::-webkit-details-marker{ display:none; }
+  details.card > summary h2{ margin:0; }
+  details.card > summary .chev{ color:var(--text-faint); transition:transform .25s var(--ease); flex:none; }
+  details.card[open] > summary .chev{ transform:rotate(180deg); }
+  details.card .body{ padding:0 24px 24px; }
+
+  .grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:14px; }
+  .field{ display:flex; flex-direction:column; gap:6px; }
+  .field label{ font-size:.8rem; color:var(--text-dim); }
+  .field .hint{ font-size:.72rem; color:var(--text-faint); margin-top:2px; }
+
+  input, select{
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:var(--radius-sm);
+    padding:10px 12px;
+    font-family:var(--font-body);
+    font-size:.92rem;
+    width:100%;
+    transition:border-color .2s var(--ease);
+  }
+  input:focus, select:focus{ outline:none; border-color:var(--violet-soft); }
+  input::placeholder{ color:var(--text-faint); }
+
+  .row{ display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end; }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:12px 22px;
+    font-family:var(--font-head);
+    font-weight:600; font-size:.9rem;
+    border-radius:999px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:transform .2s var(--ease), box-shadow .2s var(--ease), background .2s var(--ease), border-color .2s var(--ease);
+    white-space:nowrap;
+  }
+  .btn:active{ transform:scale(.97); }
+  .btn-primary{ background:var(--grad); color:#05070d; }
+  .btn-primary:hover{ box-shadow:0 8px 24px rgba(109,91,255,.35); }
+  .btn-ghost{ background:transparent; border-color:var(--border-strong); color:var(--text); }
+  .btn-ghost:hover{ border-color:var(--violet-soft); color:var(--violet-soft); }
+  .btn-sm{ padding:8px 16px; font-size:.8rem; }
+  .btn-icon{
+    background:transparent; border:1px solid var(--border); color:var(--text-faint);
+    width:32px; height:32px; border-radius:8px; padding:0; flex:none;
+    display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:border-color .2s var(--ease), color .2s var(--ease);
+  }
+  .btn-icon:hover{ border-color:var(--coral); color:var(--coral); }
+
+  .result-box{
+    margin-top:18px; padding:18px; border-radius:var(--radius-sm);
+    background:var(--surface-2); border:1px solid var(--border);
+    display:flex; flex-wrap:wrap; gap:24px; justify-content:space-between; align-items:center;
+  }
+  .result-stat{ text-align:center; }
+  .result-stat .label{ font-size:.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); }
+  .result-stat .value{ font-family:var(--font-head); font-size:1.4rem; font-weight:700; }
+  .result-stat .value.accent{ color:var(--cyan); }
+
+  /* date + summary */
+  .date-bar{ display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; }
+  .date-bar .field{ min-width:170px; }
+
+  .summary-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:14px; margin-top:16px; }
+  .summary-tile{
+    background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:14px; text-align:center;
+  }
+  .summary-tile .label{ font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint); margin-bottom:4px; }
+  .summary-tile .value{ font-family:var(--font-head); font-size:1.3rem; font-weight:700; }
+  .summary-tile .value.over{ color:var(--coral); }
+  .summary-tile .value.under{ color:var(--cyan); }
+
+  .progress-track{
+    height:12px; border-radius:999px; background:var(--surface-2);
+    border:1px solid var(--border); overflow:hidden; margin-top:16px;
+  }
+  .progress-fill{ height:100%; background:var(--grad); border-radius:999px; transition:width .3s var(--ease), background .3s var(--ease); }
+  .progress-fill.over{ background:linear-gradient(120deg, var(--coral), var(--amber)); }
+
+  /* entry form */
+  .entry-form{ margin-top:18px; padding-top:18px; border-top:1px solid var(--border); }
+
+  /* log list */
+  .meal-group{ margin-top:18px; }
+  .meal-group h3{
+    font-size:.85rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint);
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;
+  }
+  .meal-group h3 .meal-total{ color:var(--text-dim); font-family:var(--font-mono); font-weight:400; }
+  .entry{
+    display:flex; align-items:center; gap:12px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:10px 14px; margin-bottom:8px;
+  }
+  .entry .name{ flex:1; font-weight:500; }
+  .entry .macros{ font-size:.75rem; color:var(--text-faint); font-family:var(--font-mono); }
+  .entry .cals{ font-family:var(--font-mono); font-weight:600; color:var(--cyan); min-width:64px; text-align:right; }
+
+  .empty-state{ text-align:center; color:var(--text-faint); padding:24px 0; font-size:.9rem; }
+
+  /* history */
+  .history-list{ display:flex; flex-direction:column; gap:8px; }
+  .history-row{
+    display:flex; align-items:center; gap:12px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:10px 14px; cursor:pointer; transition:border-color .2s var(--ease);
+  }
+  .history-row:hover{ border-color:var(--violet-soft); }
+  .history-row.active{ border-color:var(--cyan); }
+  .history-row .hdate{ font-family:var(--font-mono); font-size:.85rem; flex:1; }
+  .history-row .htotal{ font-weight:600; }
+  .history-row .htotal.over{ color:var(--coral); }
+  .history-row .htotal.under{ color:var(--cyan); }
+  .history-row .hgoal{ font-size:.75rem; color:var(--text-faint); }
+
+  footer.page{ text-align:center; margin-top:40px; color:var(--text-faint); font-size:.8rem; }
+  footer.page a{ color:var(--violet-soft); text-decoration:none; }
+  footer.page a:hover{ text-decoration:underline; }
+
+  @media (max-width:520px){
+    .result-box{ justify-content:center; text-align:center; }
+    .entry{ flex-wrap:wrap; }
+    .entry .cals{ text-align:left; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="page">
+    <span class="eyebrow">100% local · nothing leaves your browser</span>
+    <h1>Calorie <span class="grad-text">Tracker</span></h1>
+    <p>Work out a daily calorie target, then log what you eat against it. Everything is saved in this browser only.</p>
+  </header>
+
+  <!-- Goal calculator -->
+  <details class="card" id="calcCard">
+    <summary>
+      <h2><span class="num">1</span> Calculate your daily target</h2>
+      <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </summary>
+    <div class="body">
+      <p>Uses the Mifflin-St Jeor formula to estimate your maintenance calories, then adjusts for your goal.</p>
+      <div class="grid">
+        <div class="field">
+          <label for="sex">Sex</label>
+          <select id="sex">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="age">Age (years)</label>
+          <input type="number" id="age" min="10" max="100" placeholder="30">
+        </div>
+        <div class="field">
+          <label for="height">Height (cm)</label>
+          <input type="number" id="height" min="100" max="250" placeholder="175">
+        </div>
+        <div class="field">
+          <label for="weight">Weight (kg)</label>
+          <input type="number" id="weight" min="30" max="300" step="0.1" placeholder="75">
+        </div>
+        <div class="field">
+          <label for="activity">Activity level</label>
+          <select id="activity">
+            <option value="1.2">Sedentary (little/no exercise)</option>
+            <option value="1.375">Light (1-3 days/wk)</option>
+            <option value="1.55" selected>Moderate (3-5 days/wk)</option>
+            <option value="1.725">Active (6-7 days/wk)</option>
+            <option value="1.9">Very active (hard training)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="goalType">Goal</label>
+          <select id="goalType">
+            <option value="-500">Lose weight (~0.5kg/week)</option>
+            <option value="-250">Lose weight, slowly (~0.25kg/week)</option>
+            <option value="0" selected>Maintain weight</option>
+            <option value="250">Gain weight, slowly (~0.25kg/week)</option>
+            <option value="500">Gain weight (~0.5kg/week)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:16px;">
+        <button class="btn btn-primary" id="calcBtn">Calculate</button>
+      </div>
+
+      <div class="result-box" id="resultBox" hidden>
+        <div class="result-stat">
+          <div class="label">BMR</div>
+          <div class="value" id="bmrOut">—</div>
+        </div>
+        <div class="result-stat">
+          <div class="label">Maintenance (TDEE)</div>
+          <div class="value" id="tdeeOut">—</div>
+        </div>
+        <div class="result-stat">
+          <div class="label">Daily target</div>
+          <div class="value accent" id="targetOut">—</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="useTargetBtn">Use as my daily goal</button>
+      </div>
+
+      <div class="field" style="margin-top:18px; max-width:260px;">
+        <label for="manualGoal">Or set a daily goal manually (kcal)</label>
+        <input type="number" id="manualGoal" min="0" step="10" placeholder="e.g. 2000">
+      </div>
+    </div>
+  </details>
+
+  <!-- Today's log -->
+  <div class="card">
+    <h2><span class="num">2</span> Daily log</h2>
+
+    <div class="date-bar">
+      <div class="field">
+        <label for="logDate">Date</label>
+        <input type="date" id="logDate">
+      </div>
+      <div class="field" style="text-align:right;">
+        <label>&nbsp;</label>
+        <span style="font-size:.8rem; color:var(--text-faint);">Goal: <strong id="goalDisplay" style="color:var(--text);">Not set</strong> kcal</span>
+      </div>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-tile">
+        <div class="label">Consumed</div>
+        <div class="value" id="consumedOut">0</div>
+      </div>
+      <div class="summary-tile">
+        <div class="label">Goal</div>
+        <div class="value" id="goalOut">—</div>
+      </div>
+      <div class="summary-tile">
+        <div class="label">Remaining</div>
+        <div class="value" id="remainingOut">—</div>
+      </div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+    <div class="entry-form">
+      <div class="grid">
+        <div class="field" style="grid-column:span 2;">
+          <label for="foodName">Food / item</label>
+          <input type="text" id="foodName" placeholder="e.g. Chicken salad">
+        </div>
+        <div class="field">
+          <label for="foodCals">Calories (kcal)</label>
+          <input type="number" id="foodCals" min="0" step="1" placeholder="350">
+        </div>
+        <div class="field">
+          <label for="foodMeal">Meal</label>
+          <select id="foodMeal">
+            <option value="Breakfast">Breakfast</option>
+            <option value="Lunch">Lunch</option>
+            <option value="Dinner">Dinner</option>
+            <option value="Snacks">Snacks</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="foodProtein">Protein (g) <span class="hint">optional</span></label>
+          <input type="number" id="foodProtein" min="0" step="0.1">
+        </div>
+        <div class="field">
+          <label for="foodCarbs">Carbs (g) <span class="hint">optional</span></label>
+          <input type="number" id="foodCarbs" min="0" step="0.1">
+        </div>
+        <div class="field">
+          <label for="foodFat">Fat (g) <span class="hint">optional</span></label>
+          <input type="number" id="foodFat" min="0" step="0.1">
+        </div>
+      </div>
+      <div class="row" style="margin-top:14px;">
+        <button class="btn btn-primary" id="addEntryBtn">+ Add entry</button>
+      </div>
+    </div>
+
+    <div id="logList"></div>
+  </div>
+
+  <!-- History -->
+  <details class="card" id="historyCard">
+    <summary>
+      <h2><span class="num">3</span> History</h2>
+      <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </summary>
+    <div class="body">
+      <div class="history-list" id="historyList"></div>
+    </div>
+  </details>
+
+  <footer class="page">
+    <p>Your data is stored only in this browser (localStorage) — clearing site data will erase it.</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORE_KEY = "nadir.calorieTracker.v1";
+  var MEALS = ["Breakfast","Lunch","Dinner","Snacks"];
+
+  function todayISO(){
+    var d = new Date();
+    var tz = d.getTimezoneOffset() * 60000;
+    return new Date(d - tz).toISOString().slice(0,10);
+  }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return { goal: null, entries: {} };
+  }
+
+  function saveState(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  var state = loadState();
+
+  // ---- element refs ----
+  var $ = function(id){ return document.getElementById(id); };
+  var logDate = $("logDate");
+  var goalDisplay = $("goalDisplay");
+  var goalOut = $("goalOut");
+  var consumedOut = $("consumedOut");
+  var remainingOut = $("remainingOut");
+  var progressFill = $("progressFill");
+  var logList = $("logList");
+  var historyList = $("historyList");
+  var manualGoal = $("manualGoal");
+
+  logDate.value = todayISO();
+  if(state.goal) manualGoal.value = state.goal;
+
+  // ---- goal calculator ----
+  $("calcBtn").addEventListener("click", function(){
+    var sex = $("sex").value;
+    var age = parseFloat($("age").value);
+    var height = parseFloat($("height").value);
+    var weight = parseFloat($("weight").value);
+    var activity = parseFloat($("activity").value);
+    var adjust = parseFloat($("goalType").value);
+
+    if(!age || !height || !weight){
+      alert("Please fill in age, height and weight.");
+      return;
+    }
+
+    var bmr = sex === "male"
+      ? (10*weight) + (6.25*height) - (5*age) + 5
+      : (10*weight) + (6.25*height) - (5*age) - 161;
+
+    var tdee = bmr * activity;
+    var target = Math.max(0, Math.round(tdee + adjust));
+
+    $("bmrOut").textContent = Math.round(bmr) + " kcal";
+    $("tdeeOut").textContent = Math.round(tdee) + " kcal";
+    $("targetOut").textContent = target + " kcal";
+    $("resultBox").hidden = false;
+    $("resultBox").dataset.target = target;
+  });
+
+  $("useTargetBtn").addEventListener("click", function(){
+    var target = parseInt($("resultBox").dataset.target, 10);
+    if(!target) return;
+    state.goal = target;
+    manualGoal.value = target;
+    saveState();
+    renderSummary();
+    $("calcCard").open = false;
+  });
+
+  manualGoal.addEventListener("change", function(){
+    var v = parseInt(manualGoal.value, 10);
+    state.goal = (v && v > 0) ? v : null;
+    saveState();
+    renderSummary();
+    renderHistory();
+  });
+
+  // ---- entries ----
+  function getEntries(date){
+    return state.entries[date] || [];
+  }
+
+  function setEntries(date, arr){
+    if(arr.length === 0){
+      delete state.entries[date];
+    } else {
+      state.entries[date] = arr;
+    }
+    saveState();
+  }
+
+  function dayTotal(date){
+    return getEntries(date).reduce(function(sum, e){ return sum + e.calories; }, 0);
+  }
+
+  $("addEntryBtn").addEventListener("click", function(){
+    var name = $("foodName").value.trim();
+    var cals = parseFloat($("foodCals").value);
+    var meal = $("foodMeal").value;
+    var protein = parseFloat($("foodProtein").value) || 0;
+    var carbs = parseFloat($("foodCarbs").value) || 0;
+    var fat = parseFloat($("foodFat").value) || 0;
+
+    if(!name || isNaN(cals) || cals < 0){
+      alert("Please enter a food name and a valid calorie amount.");
+      return;
+    }
+
+    var date = logDate.value || todayISO();
+    var entries = getEntries(date);
+    entries.push({
+      id: Date.now() + "-" + Math.random().toString(36).slice(2,7),
+      name: name, calories: Math.round(cals), meal: meal,
+      protein: protein, carbs: carbs, fat: fat
+    });
+    setEntries(date, entries);
+
+    $("foodName").value = "";
+    $("foodCals").value = "";
+    $("foodProtein").value = "";
+    $("foodCarbs").value = "";
+    $("foodFat").value = "";
+    $("foodName").focus();
+
+    renderLog();
+    renderSummary();
+    renderHistory();
+  });
+
+  function removeEntry(date, id){
+    var entries = getEntries(date).filter(function(e){ return e.id !== id; });
+    setEntries(date, entries);
+    renderLog();
+    renderSummary();
+    renderHistory();
+  }
+
+  function fmtMacros(e){
+    var parts = [];
+    if(e.protein) parts.push(e.protein + "g P");
+    if(e.carbs) parts.push(e.carbs + "g C");
+    if(e.fat) parts.push(e.fat + "g F");
+    return parts.join(" · ");
+  }
+
+  function renderLog(){
+    var date = logDate.value || todayISO();
+    var entries = getEntries(date);
+
+    if(entries.length === 0){
+      logList.innerHTML = '<div class="empty-state">No entries yet for this day. Add your first item above.</div>';
+      return;
+    }
+
+    var html = "";
+    MEALS.forEach(function(meal){
+      var mealEntries = entries.filter(function(e){ return e.meal === meal; });
+      if(mealEntries.length === 0) return;
+      var mealTotal = mealEntries.reduce(function(s,e){ return s + e.calories; }, 0);
+      html += '<div class="meal-group"><h3>' + meal + ' <span class="meal-total">' + mealTotal + ' kcal</span></h3>';
+      mealEntries.forEach(function(e){
+        html += '<div class="entry">' +
+          '<div class="name">' + escapeHtml(e.name) + (fmtMacros(e) ? '<div class="macros">' + fmtMacros(e) + '</div>' : '') + '</div>' +
+          '<div class="cals">' + e.calories + '</div>' +
+          '<button class="btn-icon" data-remove="' + e.id + '" title="Remove" aria-label="Remove entry">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>' +
+          '</button></div>';
+      });
+      html += '</div>';
+    });
+    logList.innerHTML = html;
+
+    logList.querySelectorAll("[data-remove]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        removeEntry(date, btn.getAttribute("data-remove"));
+      });
+    });
+  }
+
+  function escapeHtml(s){
+    var div = document.createElement("div");
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  function renderSummary(){
+    var date = logDate.value || todayISO();
+    var consumed = dayTotal(date);
+    var goal = state.goal;
+
+    consumedOut.textContent = consumed;
+    goalDisplay.textContent = goal ? goal : "Not set";
+
+    if(goal){
+      goalOut.textContent = goal;
+      var remaining = goal - consumed;
+      remainingOut.textContent = (remaining >= 0 ? remaining : "+" + Math.abs(remaining));
+      remainingOut.className = "value " + (remaining < 0 ? "over" : "under");
+
+      var pct = Math.min(100, (consumed / goal) * 100);
+      progressFill.style.width = pct + "%";
+      progressFill.className = "progress-fill" + (consumed > goal ? " over" : "");
+    } else {
+      goalOut.textContent = "—";
+      remainingOut.textContent = "—";
+      remainingOut.className = "value";
+      progressFill.style.width = Math.min(100, consumed > 0 ? 15 : 0) + "%";
+      progressFill.className = "progress-fill";
+    }
+  }
+
+  function renderHistory(){
+    var dates = Object.keys(state.entries).sort().reverse();
+    if(dates.length === 0){
+      historyList.innerHTML = '<div class="empty-state">No history yet — log a day to see it appear here.</div>';
+      return;
+    }
+    var current = logDate.value || todayISO();
+    var html = "";
+    dates.forEach(function(date){
+      var total = dayTotal(date);
+      var goal = state.goal;
+      var cls = "";
+      if(goal) cls = total > goal ? "over" : "under";
+      html += '<div class="history-row' + (date === current ? ' active' : '') + '" data-date="' + date + '">' +
+        '<div class="hdate">' + date + '</div>' +
+        '<div class="htotal ' + cls + '">' + total + ' kcal</div>' +
+        (goal ? '<div class="hgoal">/ ' + goal + '</div>' : '') +
+        '</div>';
+    });
+    historyList.innerHTML = html;
+
+    historyList.querySelectorAll("[data-date]").forEach(function(row){
+      row.addEventListener("click", function(){
+        logDate.value = row.getAttribute("data-date");
+        renderAll();
+      });
+    });
+  }
+
+  logDate.addEventListener("change", renderAll);
+
+  function renderAll(){
+    renderLog();
+    renderSummary();
+    renderHistory();
+  }
+
+  renderAll();
+})();
+</script>
+
+</body>
+</html>
